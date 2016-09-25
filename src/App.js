@@ -25,7 +25,7 @@ function ajax(url, data, callback){
             callback(JSON.parse(xmlhttp.responseText));
         }
         else{
-          callback({error:"An Error Occurred"});
+          callback({error:"Something went wrong"});
         }
     }       
     xmlhttp.open("POST",hrefUrl+'/'+url,true);
@@ -75,10 +75,12 @@ class DisplayResults extends Component {
     event.preventDefault();
     ajax('getResults', {Date:this.state.asOf}, (msg)=>{
       console.log(msg);
-      this.setState({
-        data:msg
-      });
-    })
+      if(!msg.error){
+        this.setState({
+          data:msg
+        });
+      }
+    });
   }
   getAsOf(event){
     var val=event.target.value;
@@ -128,16 +130,18 @@ class DisplayTable extends Component{
     };
   }
   componentWillReceiveProps(nextProps){
+    console.log(nextProps);
     this.setData(nextProps);
   }
   setData(props){
     this.setState({
-      columns:this.props.data?this.props.data[0]?Object.keys(this.props.data[0]):[]:[],
-      n:this.props.data?this.props.data.length:0,
-      data:this.props.data?this.props.data:[]
+      columns:props.data?props.data[0]?Object.keys(props.data[0]):[]:[],
+      n:props.data?props.data.length:0,
+      data:props.data?props.data:[]
     });
   }
   render(){
+    console.log(this.state);
     return(
       <Table responsive>
         <thead>
