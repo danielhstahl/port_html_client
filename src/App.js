@@ -186,13 +186,11 @@ class HoldSubmission extends Component{
     }
   }
   getFirstPort(event){
-    console.log(event.target.value);
     this.setState({
       firstPort:event.target.value
     }, ()=>{this.canSubmit();});
   }
   getSecondPort(event){
-    console.log(event.target.value);
     this.setState({
       secondPort:event.target.value
     });
@@ -327,7 +325,7 @@ class HoldSubmission extends Component{
               portTypes={this.props.ports} 
               label='Port that will provide materials (not required)' 
               onSelect={(event)=>{
-                this.getFirstPort(event);
+                this.getSecondPort(event);
               }}
             />
           </Col>
