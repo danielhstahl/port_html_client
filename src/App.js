@@ -268,13 +268,15 @@ class HoldSubmission extends Component{
       ()=>{
         var numT=this.state.secondPort?2:1;
         ajax('writeTransaction', {Port:this.state.firstPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials}, (result)=>{
+          console.log(result);
           if(!result.error){
             numT--;
           }
           this.afterSuccess(numT);
         });
         if(this.state.secondPort){
-          ajax('writeTransaction', {Port:this.state.secondPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials*(-1)}, (result)=>{
+          ajax('writeTransaction', {Port:this.state.secondPort, Material:this.state.materialType, Date:this.state.asOf, Amount:-this.state.numberOfMaterials}, (result)=>{
+            console.log(result);
             if(!result.error){
               numT--;
             }
