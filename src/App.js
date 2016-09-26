@@ -472,9 +472,10 @@ class App extends Component {
         <div className='container'>
           <Nav bsStyle="tabs" activeKey={this.state.active} onSelect={(eventKey)=>{this.switchRow(eventKey);}}>
             <NavItem eventKey="1" >Enter Data</NavItem>
-            <NavItem eventKey="2" >Add ports and materials</NavItem>
-            <NavItem eventKey="3" >Display Results</NavItem>
+            <NavItem eventKey="2" >Add Options</NavItem>
+            <NavItem eventKey="3" >Results</NavItem>
           </Nav>
+          <div className='smallSpace'></div>
           {this.state.eventOne?<HoldSubmission ports={this.state.ports} materials={this.state.materials}/>:null}
           {this.state.eventTwo?<Row>
             <Col sm={12} md={6}>
@@ -488,6 +489,7 @@ class App extends Component {
           </Row>:null}
           {this.state.eventThree?<DisplayResults/>:null}
         </div>
+        <div className='blankSpace'></div>
       </div>
     );
   }
