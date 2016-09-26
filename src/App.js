@@ -39,6 +39,7 @@ class PortSelect extends Component {
       <FormGroup>
         <ControlLabel>{this.props.label}</ControlLabel>
         <FormControl componentClass="select" placeholder="Select a Port" onChange={(event)=>{this.props.onSelect(event);} }>
+          <option value='0'></option>
           {this.props.portTypes.map((value, index)=>{
             return(<option key={index} value={value}>{value}</option>);
           })}
@@ -53,6 +54,7 @@ class MaterialSelect extends Component {
       <FormGroup>
         <ControlLabel>{this.props.label}</ControlLabel>
         <FormControl componentClass="select" placeholder="Select Materials" onChange={(event)=>{this.props.onSelect(event);} }>
+          <option value='0'></option>
           {this.props.materialTypes.map((value, index)=>{
             return(<option key={index} value={value}>{value}</option>);
           })}
@@ -130,7 +132,6 @@ class DisplayTable extends Component{
     };
   }
   componentWillReceiveProps(nextProps){
-    console.log(nextProps);
     this.setData(nextProps);
   }
   setData(props){
@@ -141,7 +142,6 @@ class DisplayTable extends Component{
     });
   }
   render(){
-    console.log(this.state);
     return(
       <Table responsive>
         <thead>
@@ -175,10 +175,6 @@ class HoldSubmission extends Component{
   constructor(props) {
     super(props);
     this.state={
-      //id:this.props.id,
-      //label:this.props.label,
-      //url:this.props.url,
-      //text:'',
       firstPort:'',
       numberOfMaterials:0,
       materialType:'',
