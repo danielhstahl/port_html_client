@@ -39,7 +39,7 @@ class PortSelect extends Component {
       <FormGroup>
         <ControlLabel>{this.props.label}</ControlLabel>
         <FormControl componentClass="select" placeholder="Select a Port" onChange={(event)=>{this.props.onSelect(event);} }>
-          <option value='0'></option>
+          <option value=''></option>
           {this.props.portTypes.map((value, index)=>{
             return(<option key={index} value={value}>{value}</option>);
           })}
@@ -54,7 +54,7 @@ class MaterialSelect extends Component {
       <FormGroup>
         <ControlLabel>{this.props.label}</ControlLabel>
         <FormControl componentClass="select" placeholder="Select Materials" onChange={(event)=>{this.props.onSelect(event);} }>
-          <option value='0'></option>
+          <option value=''></option>
           {this.props.materialTypes.map((value, index)=>{
             return(<option key={index} value={value}>{value}</option>);
           })}
