@@ -246,9 +246,16 @@ class HoldSubmission extends Component{
     if(shouldBeZero===0){
       this.setState({
         progress:false,
-        style:'primary',
-        buttonText:'Submit'
-      });
+        style:'success',
+        buttonText:'Success'
+        
+      },
+      ()=>{setTimeout(()=>{
+        this.setState({
+          style:'primary',
+          buttonText:'Submit'
+        });
+      }, 1000)});
     }
     
   }
@@ -256,9 +263,7 @@ class HoldSubmission extends Component{
     event.preventDefault();
     if(this.state.canSubmit){
       this.setState({
-        progress:true,
-        style:'success',
-        buttonText:'Success'
+        progress:true
       }, 
       ()=>{
         var numT=this.state.secondPort?2:1;
