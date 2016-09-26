@@ -186,11 +186,13 @@ class HoldSubmission extends Component{
     }
   }
   getFirstPort(event){
+    console.log(event.target.value);
     this.setState({
       firstPort:event.target.value
     }, ()=>{this.canSubmit();});
   }
   getSecondPort(event){
+    console.log(event.target.value);
     this.setState({
       secondPort:event.target.value
     });
@@ -240,17 +242,43 @@ class HoldSubmission extends Component{
       })
     }
   }
+  afterSuccess(shouldBeZero){
+    if(shouldBeZero===0){
+      this.setState({
+        progress:false,
+        style:'primary',
+        buttonText:'Submit'
+      });
+    }
+    
+  }
   onSubmit(event){
     event.preventDefault();
     if(this.state.canSubmit){
-      ajax('writeTransaction', {Port:this.state.firtPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials}, (result)=>{
-        console.log(result);
-      });
-      if(this.state.secondPort){
-        ajax('writeTransaction', {Port:this.state.secondPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials*(-1)}, (result)=>{
-          console.log(result);
+      this.setState({
+        progress:true,
+        style:'success',
+        buttonText:'Success'
+      }, 
+      ()=>{
+        var numT=this.state.secondPort?2:1;
+        ajax('writeTransaction', {Port:this.state.firstPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials}, (result)=>{
+          if(!result.error){
+            numT--;
+          }
+          this.afterSuccess(numT);
         });
-      }
+        if(this.state.secondPort){
+          ajax('writeTransaction', {Port:this.state.secondPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials*(-1)}, (result)=>{
+            if(!result.error){
+              numT--;
+            }
+            this.afterSuccess(numT);
+          });
+        }
+      })
+
+      
     }
   }
   render(){
