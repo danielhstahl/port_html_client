@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import {Button, FormControl, Nav, NavItem, Jumbotron, FormGroup, ProgressBar, Row, Col, ControlLabel, Table} from 'react-bootstrap'
+import {Button, FormControl, Nav, NavItem, Jumbotron, FormGroup, ProgressBar, Row, Col, ControlLabel, Table, Modal} from 'react-bootstrap'
 
 var hrefUrl='';
 if(process.env.NODE_ENV!=='production'){
@@ -260,8 +260,20 @@ class HoldSubmission extends Component{
   onSubmit(event){
     event.preventDefault();
     if(this.state.canSubmit){
-      this.setState({
-        progress:true
+      if(!this.state.secondPort){
+        this.setState({
+          showModal:true
+        });
+      }
+      else{
+        this.submitUtil();
+      }
+    }
+  }
+  submitUtil(){
+    this.setState({
+        progress:true,
+        showModal:false
       }, 
       ()=>{
         var numT=this.state.secondPort?2:1;
@@ -281,10 +293,12 @@ class HoldSubmission extends Component{
             this.afterSuccess(numT);
           });
         }
-      })
-
-      
-    }
+      });
+  }
+  closeModal(){
+    this.setState({
+      showModal:false
+    });
   }
   render(){
     return(
@@ -331,9 +345,17 @@ class HoldSubmission extends Component{
           </Col>
          </Row> 
         {this.state.progress?<ProgressBar active/>:<Button disabled={!this.state.canSubmit} type='submit' bsStyle={this.state.style}>{this.state.buttonText}</Button>}
-        
+         <Modal show={this.state.showModal} onHide={()=>{this.closeModal();}}>
+          <Modal.Body>
+            Warning: no second port selected.  Is this ok?
+          </Modal.Body>
+          <Modal.Footer>
+            <Button bsStyle='warning' onClick={()=>{this.closeModal();}}>Not Ok!  Let me go back and edit.</Button>
+            <Button bsStyle='success' onClick={()=>{this.submitUtil();}}>Ok.  I only want one port.</Button>
+          </Modal.Footer>
+        </Modal>
       </form>
-    )
+    );
   }
 
 }
