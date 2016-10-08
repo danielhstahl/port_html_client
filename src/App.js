@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import {Button, FormControl, Nav, NavItem, Jumbotron, FormGroup, ProgressBar, Row, Col, ControlLabel, Table, Modal} from 'react-bootstrap'
-
+//import fileDownloader from 'react-file-download';
 var hrefUrl='';
 if(process.env.NODE_ENV!=='production'){
   hrefUrl='http://localhost:3000';
@@ -15,7 +15,48 @@ Date.prototype.yyyymmdd = function() {
   mm=mms[1]?mms:'0'+mms;
   return [this.getFullYear(), '-', mm , '-', dd].join(''); // padding
 };
-
+/*function convertObjToArr(obj){
+  var n=obj.length;
+  if(n==0){
+    return [[]];
+  }
+  var titles=Object.keys(obj[0]);
+  var numTitles=titles.length;
+  var resultsToWrite=[];
+  resultsToWrite.push(titles);
+  for(var i=0; i<n; ++i){
+    var tmpArr=[];
+    for(var j=0; j<numTitles; ++j){
+      tmpArr.push(obj[i][titles[j]])
+    }
+    resultsToWrite.push(tmpArr)
+  }
+  return resultsToWrite;
+}*/
+function downloadFile(json, filename){
+  var header = Object.keys(json[0]);
+  var csv = json.map(row => header.map(fieldName => JSON.stringify(row[fieldName] || '')).join(','));
+  csv.unshift(header.join(','));
+  csv = csv.join('\r\n');
+  var blob = new Blob([csv], {type: 'text/csv'});
+  if (typeof window.navigator.msSaveBlob !== 'undefined') {
+      // IE workaround for "HTML7007: One or more blob URLs were 
+      // revoked by closing the blob for which they were created. 
+      // These URLs will no longer resolve as the data backing 
+      // the URL has been freed."
+      window.navigator.msSaveBlob(blob, filename);
+  }
+  else {
+      var csvURL = window.URL.createObjectURL(blob);
+      var tempLink = document.createElement('a');
+      tempLink.href = csvURL;
+      tempLink.setAttribute('download', filename);
+      tempLink.setAttribute('target', '_blank');
+      document.body.appendChild(tempLink);
+      tempLink.click();
+      document.body.removeChild(tempLink);
+  }
+}
 function ajax(url, data, callback){
 
     var xmlhttp=new XMLHttpRequest();
@@ -70,7 +111,8 @@ class DisplayResults extends Component {
     this.currDate=new Date().yyyymmdd();
     this.state={
       canSubmit:true,
-      asOf:this.currDate
+      asOf:this.currDate,
+      allResultsProgress:false
     };
   }
   onSubmit(event){
@@ -103,9 +145,28 @@ class DisplayResults extends Component {
       });
     }
   }
+  downloadData(){
+    this.setState({
+      allResultsProgress:true
+    }, 
+    ()=>{
+      ajax('getAllResults', {}, (msg)=>{
+        if(!msg.error){
+          //console.log(convertObjToArr(msg));
+          downloadFile(msg, "results.csv");
+        }
+        this.setState({
+          allResultsProgress:false
+        });
+      });
+    });
+    
+    
+  }
   render(){
     return(
       <div>
+        {this.state.allResultsProgress?<ProgressBar active/>:<Button onClick={()=>{this.downloadData();}}>Download as CSV</Button>}
         <form onSubmit={(e)=>{this.onSubmit(e);}}>
           <FormGroup validationState={this.state.dValidationState}>
             <ControlLabel>As Of Date (yyyy-mm-dd)</ControlLabel>
