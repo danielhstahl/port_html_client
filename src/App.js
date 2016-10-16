@@ -34,10 +34,12 @@ Date.prototype.yyyymmdd = function() {
   return resultsToWrite;
 }*/
 function downloadFile(json, filename){
+  console.log(json);
   var header = Object.keys(json[0]);
   var csv = json.map(row => header.map(fieldName => JSON.stringify(row[fieldName] || '')).join(','));
   csv.unshift(header.join(','));
   csv = csv.join('\r\n');
+  console.log(csv);
   var blob = new Blob([csv], {type: 'text/csv'});
   if (typeof window.navigator.msSaveBlob !== 'undefined') {
       // IE workaround for "HTML7007: One or more blob URLs were 
@@ -294,6 +296,11 @@ class HoldSubmission extends Component{
       materialType:event.target.value
     }, ()=>{this.canSubmit();});
   }
+  getOptionalComment(event){
+    this.setState({
+      optionalComment:event.target.value
+    });
+  }
   canSubmit(){
     if(this.state.materialType&&this.state.numberOfMaterials>0&&this.state.firstPort&&this.state.asOf){
       this.setState({
@@ -338,7 +345,7 @@ class HoldSubmission extends Component{
       }, 
       ()=>{
         var numT=this.state.secondPort?2:1;
-        ajax('writeTransaction', {Port:this.state.firstPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials}, (result)=>{
+        ajax('writeTransaction', {Port:this.state.firstPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials, Comment:this.state.optionalComment}, (result)=>{
           console.log(result);
           if(!result.error){
             numT--;
@@ -346,7 +353,7 @@ class HoldSubmission extends Component{
           this.afterSuccess(numT);
         });
         if(this.state.secondPort){
-          ajax('writeTransaction', {Port:this.state.secondPort, Material:this.state.materialType, Date:this.state.asOf, Amount:-this.state.numberOfMaterials}, (result)=>{
+          ajax('writeTransaction', {Port:this.state.secondPort, Material:this.state.materialType, Date:this.state.asOf, Amount:-this.state.numberOfMaterials, Comment:this.state.optionalComment}, (result)=>{
             console.log(result);
             if(!result.error){
               numT--;
@@ -403,6 +410,12 @@ class HoldSubmission extends Component{
                 this.getSecondPort(event);
               }}
             />
+          </Col>
+          <Col xs={12} sm={6} md={4}>
+            <FormGroup >
+              <ControlLabel>Optional Comments</ControlLabel>
+              <FormControl  componentClass="textarea" onChange={(event)=>{this.getOptionalComment(event);}}/>
+            </FormGroup>
           </Col>
          </Row> 
         {this.state.progress?<ProgressBar active/>:<Button disabled={!this.state.canSubmit} type='submit' bsStyle={this.state.style}>{this.state.buttonText}</Button>}
