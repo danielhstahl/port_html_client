@@ -487,7 +487,7 @@ class AddRecord extends Component{
   }
   onFieldChange(e){
     var val=e.target.value;
-    if(val.length>0){
+    if(val.length>0 && val.length<=50){
       this.setState({
         text:e.target.value,
         validate:null,
@@ -537,7 +537,7 @@ class App extends Component {
           eventOne:true,
           eventTwo:false,
           eventThree:false,
-          active:"1"
+          active:eventKey
         });
         break;
       case 2:
@@ -545,7 +545,7 @@ class App extends Component {
           eventOne:false,
           eventTwo:true,
           eventThree:false,
-          active:"2"
+          active:eventKey
         });
         break;
       case 3:
@@ -553,7 +553,7 @@ class App extends Component {
           eventOne:false,
           eventTwo:false,
           eventThree:true,
-          active:"3"
+          active:eventKey
         });
         break;
       default:
