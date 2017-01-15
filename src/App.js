@@ -15,24 +15,7 @@ Date.prototype.yyyymmdd = function() {
   mm=mms[1]?mms:'0'+mms;
   return [this.getFullYear(), '-', mm , '-', dd].join(''); // padding
 };
-/*function convertObjToArr(obj){
-  var n=obj.length;
-  if(n==0){
-    return [[]];
-  }
-  var titles=Object.keys(obj[0]);
-  var numTitles=titles.length;
-  var resultsToWrite=[];
-  resultsToWrite.push(titles);
-  for(var i=0; i<n; ++i){
-    var tmpArr=[];
-    for(var j=0; j<numTitles; ++j){
-      tmpArr.push(obj[i][titles[j]])
-    }
-    resultsToWrite.push(tmpArr)
-  }
-  return resultsToWrite;
-}*/
+
 function downloadFile(json, filename){
   console.log(json);
   var header = Object.keys(json[0]);
@@ -76,22 +59,18 @@ function ajax(url, data, callback){
     xmlhttp.send(JSON.stringify(data));
 }
 
-class PortSelect extends Component {
-  render(){
-    return(
-      <FormGroup>
-        <ControlLabel>{this.props.label}</ControlLabel>
-        <FormControl componentClass="select" placeholder="Select a Port" onChange={(event)=>{this.props.onSelect(event);} }>
-          <option value=''></option>
-          {this.props.portTypes.map((value, index)=>{
-            return(<option key={index} value={value}>{value}</option>);
-          })}
-        </FormControl>
-      </FormGroup>  
-    )
-  }
-}
-class MaterialSelect extends Component {
+const CustomSelect=({label, onSelect, portTypes, placeholder})=>
+<FormGroup>
+  <ControlLabel>{label}</ControlLabel>
+  <FormControl componentClass="select" placeholder={placeholder} onChange={(event)=>{onSelect(event);} }>
+    <option value=''></option>
+    {portTypes.map((value, index)=>{
+      return(<option key={index} value={value}>{value}</option>);
+    })}
+  </FormControl>
+</FormGroup>  
+/*
+const MaterialSelect=({label, onSelect, })
   render(){
     return(
       <FormGroup>
@@ -105,7 +84,7 @@ class MaterialSelect extends Component {
       </FormGroup>  
     )
   }
-}
+}*/
 
 class DisplayResults extends Component {
   constructor(props){
@@ -185,6 +164,37 @@ class DisplayResults extends Component {
 
 }
 
+const DisplayTable=({data})=>{
+  const columns=data?data[0]?Object.keys(data[0]):[]:[];
+  return(
+  <Table responsive>
+    <thead>
+      <tr>
+        {columns.map((value, index)=>{
+          return(
+            <th key={index}>{value}</th>
+          )
+        })}
+      </tr>
+    </thead>
+    <tbody>
+      {data?data:[].map((value, index)=>{
+        return(
+          <tr key={index}>
+            {columns.map((valueKey, indexCol)=>{
+              return(
+                <td key={indexCol}>{value[valueKey]}</td>
+              )
+            })}
+          </tr>
+        )
+      })}
+    </tbody>
+  </Table>
+  );
+}
+
+/*
 class DisplayTable extends Component{
   constructor(props){
     super(props);
@@ -232,7 +242,7 @@ class DisplayTable extends Component{
       </Table>
     );
   }
-}
+}*/
 
 class HoldSubmission extends Component{
   constructor(props) {
@@ -346,17 +356,24 @@ class HoldSubmission extends Component{
       ()=>{
         var numT=this.state.secondPort?2:1;
         ajax('writeTransaction', {Port:this.state.firstPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials, Comment:this.state.optionalComment}, (result)=>{
-          console.log(result);
+          //console.log(result);
+          
           if(!result.error){
             numT--;
+          }
+          else{
+            alert("Error! "+result.error);
           }
           this.afterSuccess(numT);
         });
         if(this.state.secondPort){
           ajax('writeTransaction', {Port:this.state.secondPort, Material:this.state.materialType, Date:this.state.asOf, Amount:-this.state.numberOfMaterials, Comment:this.state.optionalComment}, (result)=>{
-            console.log(result);
+            //console.log(result);
             if(!result.error){
               numT--;
+            }
+            else{
+              alert("Error! "+result.error);
             }
             this.afterSuccess(numT);
           });
@@ -373,21 +390,23 @@ class HoldSubmission extends Component{
       <form onSubmit={(event)=>{this.onSubmit(event);}}>
         <Row>
           <Col xs={12} sm={6} md={4}>
-            <PortSelect 
+            <CustomSelect 
               portTypes={this.props.ports} 
               label='Port that will receive materials' 
               onSelect={(event)=>{
                 this.getFirstPort(event);
               }}
+              placeholder="Select a Port"
             />
           </Col>
           <Col xs={12} sm={6} md={4}>
-            <MaterialSelect 
+            <CustomSelect 
               materialTypes={this.props.materials} 
               label='Select material' 
               onSelect={(event)=>{
                 this.getMaterial(event);
               }}
+              placeholder="Select Materials"
             />
           </Col>
           <Col xs={12} sm={6} md={4}>
@@ -403,12 +422,13 @@ class HoldSubmission extends Component{
             </FormGroup>
           </Col>
           <Col xs={12} sm={6} md={4}>
-            <PortSelect 
+            <CustomSelect 
               portTypes={this.props.ports} 
               label='Port that will provide materials (not required)' 
               onSelect={(event)=>{
                 this.getSecondPort(event);
               }}
+              placeholder="Select a Port"
             />
           </Col>
           <Col xs={12} sm={6} md={4}>
