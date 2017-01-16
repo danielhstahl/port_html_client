@@ -356,7 +356,7 @@ class HoldSubmission extends Component{
       ()=>{
         var numT=this.state.secondPort?2:1;
         ajax('writeTransaction', {Port:this.state.firstPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials, Comment:this.state.optionalComment}, (result)=>{
-          //console.log(result);
+          console.log(result);
           
           if(!result.error){
             numT--;
@@ -368,7 +368,7 @@ class HoldSubmission extends Component{
         });
         if(this.state.secondPort){
           ajax('writeTransaction', {Port:this.state.secondPort, Material:this.state.materialType, Date:this.state.asOf, Amount:-this.state.numberOfMaterials, Comment:this.state.optionalComment}, (result)=>{
-            //console.log(result);
+            console.log(result);
             if(!result.error){
               numT--;
             }
@@ -459,7 +459,7 @@ class AddRecord extends Component{
     this.state={
       id:this.props.id,
       label:this.props.label,
-      url:this.props.url,
+      //url:this.props.url,
       text:'',
       style:'primary',
       progress:false,
@@ -481,8 +481,9 @@ class AddRecord extends Component{
       {
         progress:true
       },
-      ajax(this.state.url, data, 
+      ajax(this.props.url, data, 
         (obj)=>{
+          console.log(obj);
           if(!obj.error){
            
             if(this.props.onSuccess){
