@@ -334,6 +334,11 @@ class HoldSubmission extends Component{
         });
       }, 1000)});
     }
+    else{
+      this.setState({
+        progress:false
+      });
+    }
     
   }
   onSubmit(event){
@@ -360,27 +365,16 @@ class HoldSubmission extends Component{
         //var numError=0;
         ajax('writeTransaction', {Port:this.state.firstPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials, Comment:this.state.optionalComment}, (result)=>{
           console.log(result);
-          
-          if(!result.error){
-            numT--;
-          }
-          else if(numError===0){
+        
+          if(result.error&&noErrors){
             noErrors=false;
             alert("Error! "+result.error);
-            numError++;
-            this.setState({
-              progress:false
-            })
           }
-          this.afterSuccess(anyError);
+          this.afterSuccess(noErrors);
         });
         if(this.state.secondPort){
           ajax('writeTransaction', {Port:this.state.secondPort, Material:this.state.materialType, Date:this.state.asOf, Amount:-this.state.numberOfMaterials, Comment:this.state.optionalComment}, (result)=>{
             console.log(result);
-            if(!result.error){
-              numT--;
-            }
-            //this.afterSuccess(anyError);
           });
         }
       });
