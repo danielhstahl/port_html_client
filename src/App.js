@@ -356,14 +356,19 @@ class HoldSubmission extends Component{
       }, 
       ()=>{
         var numT=this.state.secondPort?2:1;
+        var numError=0;
         ajax('writeTransaction', {Port:this.state.firstPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials, Comment:this.state.optionalComment}, (result)=>{
           console.log(result);
           
           if(!result.error){
             numT--;
           }
-          else{
+          else if(numError===0){
             alert("Error! "+result.error);
+            numError++;
+            this.setState({
+              progress:false
+            })
           }
           this.afterSuccess(numT);
         });
@@ -372,9 +377,6 @@ class HoldSubmission extends Component{
             console.log(result);
             if(!result.error){
               numT--;
-            }
-            else{
-              alert("Error! "+result.error);
             }
             this.afterSuccess(numT);
           });
