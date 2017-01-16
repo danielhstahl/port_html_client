@@ -50,9 +50,9 @@ function ajax(url, data, callback){
         if (xmlhttp.readyState===4 && xmlhttp.status===200){
             callback(JSON.parse(xmlhttp.responseText));
         }
-        else{
-          callback({error:"Something went wrong"});
-        }
+        //else{
+         // callback({error:"Something went wrong"});
+        //}
     }       
     xmlhttp.open("POST",hrefUrl+'/'+url,true);
     xmlhttp.setRequestHeader("Content-type","application/json");
