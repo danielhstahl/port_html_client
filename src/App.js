@@ -319,8 +319,8 @@ class HoldSubmission extends Component{
       })
     }
   }
-  afterSuccess(shouldBeZero){
-    if(shouldBeZero===0){
+  afterSuccess(noErrors){
+    if(noErrors){
       this.setState({
         progress:false,
         style:'success',
@@ -355,8 +355,9 @@ class HoldSubmission extends Component{
         showModal:false
       }, 
       ()=>{
-        var numT=this.state.secondPort?2:1;
-        var numError=0;
+        //var numT=this.state.secondPort?2:1;
+        var noErrors=true;
+        //var numError=0;
         ajax('writeTransaction', {Port:this.state.firstPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials, Comment:this.state.optionalComment}, (result)=>{
           console.log(result);
           
@@ -364,13 +365,14 @@ class HoldSubmission extends Component{
             numT--;
           }
           else if(numError===0){
+            noErrors=false;
             alert("Error! "+result.error);
             numError++;
             this.setState({
               progress:false
             })
           }
-          this.afterSuccess(numT);
+          this.afterSuccess(anyError);
         });
         if(this.state.secondPort){
           ajax('writeTransaction', {Port:this.state.secondPort, Material:this.state.materialType, Date:this.state.asOf, Amount:-this.state.numberOfMaterials, Comment:this.state.optionalComment}, (result)=>{
@@ -378,7 +380,7 @@ class HoldSubmission extends Component{
             if(!result.error){
               numT--;
             }
-            this.afterSuccess(numT);
+            //this.afterSuccess(anyError);
           });
         }
       });
