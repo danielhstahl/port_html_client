@@ -59,12 +59,12 @@ function ajax(url, data, callback){
     xmlhttp.send(JSON.stringify(data));
 }
 
-const CustomSelect=({label, onSelect, portTypes, placeholder})=>
+const CustomSelect=({label, onSelect, types, placeholder})=>
 <FormGroup>
   <ControlLabel>{label}</ControlLabel>
   <FormControl componentClass="select" placeholder={placeholder} onChange={(event)=>{onSelect(event);} }>
     <option value=''></option>
-    {portTypes.map((value, index)=>{
+    {types.map((value, index)=>{
       return(<option key={index} value={value}>{value}</option>);
     })}
   </FormControl>
@@ -166,6 +166,7 @@ class DisplayResults extends Component {
 
 const DisplayTable=({data})=>{
   const columns=data?data[0]?Object.keys(data[0]):[]:[];
+  //const myData=data?data:[];
   return(
   <Table responsive>
     <thead>
@@ -391,7 +392,7 @@ class HoldSubmission extends Component{
         <Row>
           <Col xs={12} sm={6} md={4}>
             <CustomSelect 
-              portTypes={this.props.ports} 
+              types={this.props.ports} 
               label='Port that will receive materials' 
               onSelect={(event)=>{
                 this.getFirstPort(event);
@@ -401,7 +402,7 @@ class HoldSubmission extends Component{
           </Col>
           <Col xs={12} sm={6} md={4}>
             <CustomSelect 
-              materialTypes={this.props.materials} 
+              types={this.props.materials} 
               label='Select material' 
               onSelect={(event)=>{
                 this.getMaterial(event);
@@ -423,7 +424,7 @@ class HoldSubmission extends Component{
           </Col>
           <Col xs={12} sm={6} md={4}>
             <CustomSelect 
-              portTypes={this.props.ports} 
+              types={this.props.ports} 
               label='Port that will provide materials (not required)' 
               onSelect={(event)=>{
                 this.getSecondPort(event);
