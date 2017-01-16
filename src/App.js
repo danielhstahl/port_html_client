@@ -166,7 +166,7 @@ class DisplayResults extends Component {
 
 const DisplayTable=({data})=>{
   const columns=data?data[0]?Object.keys(data[0]):[]:[];
-  //const myData=data?data:[];
+  const myData=data?data:[];
   return(
   <Table responsive>
     <thead>
@@ -179,7 +179,7 @@ const DisplayTable=({data})=>{
       </tr>
     </thead>
     <tbody>
-      {data?data:[].map((value, index)=>{
+      {myData.map((value, index)=>{
         return(
           <tr key={index}>
             {columns.map((valueKey, indexCol)=>{
