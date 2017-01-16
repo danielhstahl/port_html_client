@@ -366,9 +366,9 @@ class HoldSubmission extends Component{
         ajax('writeTransaction', {Port:this.state.firstPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials, Comment:this.state.optionalComment}, (result)=>{
           console.log(result);
         
-          if(result.error&&noErrors){
+          if(result.Failure&&noErrors){
             noErrors=false;
-            alert("Error! "+result.error);
+            alert("Error! "+result.Failure.Message);
           }
           this.afterSuccess(noErrors);
         });
