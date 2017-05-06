@@ -271,7 +271,8 @@ class HoldSubmission extends Component{
   }
   getNumberMaterials(event){
     var val=event.target.value;
-    if(val.match(/^[1-9]\d*$/)){ //positive integers
+    //if(val.match(/^[1-9]\d*$/)){ //positive integers
+    if(val.match(/^[-+]?\d+$/)){ // integers
       
       this.setState({
         nValidationState:null,
@@ -313,7 +314,7 @@ class HoldSubmission extends Component{
     });
   }
   canSubmit(){
-    if(this.state.materialType&&this.state.numberOfMaterials>0&&this.state.firstPort&&this.state.asOf){
+    if(this.state.materialType&&/*this.state.numberOfMaterials>0&&*/this.state.firstPort&&this.state.asOf){
       this.setState({
         canSubmit:true
       })
