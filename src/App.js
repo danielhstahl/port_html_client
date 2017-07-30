@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import {Button, FormControl, Nav, NavItem, Jumbotron, FormGroup, ProgressBar, Row, Col, ControlLabel, Table, Modal} from 'react-bootstrap'
+import axios from 'axios'
 //import fileDownloader from 'react-file-download';
 var hrefUrl='';
 if(process.env.NODE_ENV!=='production'){
@@ -19,10 +20,11 @@ Date.prototype.yyyymmdd = function() {
 function downloadFile(json, filename){
   console.log(json);
   var header = Object.keys(json[0]);
-  var csv = json.map(row => header.map(fieldName => JSON.stringify(row[fieldName] || '')).join(','));
+  var csv = json.map(row => header.map(fieldName => JSON.stringify(row[fieldName] || '').replace(/\\n/g, "").replace(/[|&;$%@"<>()+\\/"]/g, "")).join(','))
   csv.unshift(header.join(','));
   csv = csv.join('\r\n');
-  console.log(csv);
+  console.log(csv)
+  //console.log(csv);
   var blob = new Blob([csv], {type: 'text/csv'});
   if (typeof window.navigator.msSaveBlob !== 'undefined') {
       // IE workaround for "HTML7007: One or more blob URLs were 
@@ -41,22 +43,6 @@ function downloadFile(json, filename){
       tempLink.click();
       document.body.removeChild(tempLink);
   }
-}
-function ajax(url, data, callback){
-
-    var xmlhttp=new XMLHttpRequest();
-    //the callback function to be callled when AJAX request comes back
-    xmlhttp.onreadystatechange=function(){
-        if (xmlhttp.readyState===4 && xmlhttp.status===200){
-            callback(JSON.parse(xmlhttp.responseText));
-        }
-        //else{
-         // callback({error:"Something went wrong"});
-        //}
-    }       
-    xmlhttp.open("POST",hrefUrl+'/'+url,true);
-    xmlhttp.setRequestHeader("Content-type","application/json");
-    xmlhttp.send(JSON.stringify(data));
 }
 
 const CustomSelect=({label, onSelect, types, placeholder})=>
@@ -98,14 +84,14 @@ class DisplayResults extends Component {
   }
   onSubmit(event){
     event.preventDefault();
-    ajax('getResults', {Date:this.state.asOf}, (msg)=>{
-      console.log(msg);
-      if(!msg.error){
+    axios.post('/getResults', {Date:this.state.asOf}).then(({data})=>{
+      console.log(data);
+      if(!data.error){
         this.setState({
-          data:msg
+          data
         });
       }
-    });
+    }).catch(err=>console.log(err));
   }
   getAsOf(event){
     var val=event.target.value;
@@ -131,15 +117,15 @@ class DisplayResults extends Component {
       allResultsProgress:true
     }, 
     ()=>{
-      ajax('getAllResults', {}, (msg)=>{
-        if(!msg.error){
+      axios.post('/getAllResults', {}).then(({data})=>{
+        if(!data.error){
           //console.log(convertObjToArr(msg));
-          downloadFile(msg, "results.csv");
+          downloadFile(data, "results.csv");
         }
         this.setState({
           allResultsProgress:false
         });
-      });
+      }).catch(err=>console.log(err))
     });
     
     
@@ -195,55 +181,6 @@ const DisplayTable=({data})=>{
   );
 }
 
-/*
-class DisplayTable extends Component{
-  constructor(props){
-    super(props);
-    this.state={
-      columns:this.props.data?this.props.data[0]?Object.keys(this.props.data[0]):[]:[],
-      n:this.props.data?this.props.data.length:0,
-      data:this.props.data?this.props.data:[]
-    };
-  }
-  componentWillReceiveProps(nextProps){
-    this.setData(nextProps);
-  }
-  setData(props){
-    this.setState({
-      columns:props.data?props.data[0]?Object.keys(props.data[0]):[]:[],
-      n:props.data?props.data.length:0,
-      data:props.data?props.data:[]
-    });
-  }
-  render(){
-    return(
-      <Table responsive>
-        <thead>
-          <tr>
-            {this.state.columns.map((value, index)=>{
-              return(
-                <th key={index}>{value}</th>
-              )
-            })}
-          </tr>
-        </thead>
-        <tbody>
-          {this.state.data.map((value, index)=>{
-            return(
-              <tr key={index}>
-                {this.state.columns.map((valueKey, indexCol)=>{
-                  return(
-                    <td key={indexCol}>{value[valueKey]}</td>
-                  )
-                })}
-              </tr>
-            )
-          })}
-        </tbody>
-      </Table>
-    );
-  }
-}*/
 
 class HoldSubmission extends Component{
   constructor(props) {
@@ -361,23 +298,23 @@ class HoldSubmission extends Component{
         showModal:false
       }, 
       ()=>{
+        const {secondPort}=this.state
         //var numT=this.state.secondPort?2:1;
-        var noErrors=true;
+        //var noErrors=true;
         //var numError=0;
-        ajax('writeTransaction', {Port:this.state.firstPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials, Comment:this.state.optionalComment}, (result)=>{
-          console.log(result);
+        Promise.all([
+          axios.post('/writeTransaction', {Port:this.state.firstPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials, Comment:this.state.optionalComment}).then(({data})=>{
+            console.log(data);
+          
+            if(data.Failure/*&&noErrors*/){
+              //noErrors=false;
+              alert("Error! "+data.Failure.Message);
+            }
+            this.afterSuccess(true);//no errors
+          }).catch(err=>err),
+          secondPort?axios.post('/writeTransaction', {Port:this.state.secondPort, Material:this.state.materialType, Date:this.state.asOf, Amount:-this.state.numberOfMaterials, Comment:this.state.optionalComment}):Promise.resolve()
+        ]).then(results=>console.log(results))
         
-          if(result.Failure&&noErrors){
-            noErrors=false;
-            alert("Error! "+result.Failure.Message);
-          }
-          this.afterSuccess(noErrors);
-        });
-        if(this.state.secondPort){
-          ajax('writeTransaction', {Port:this.state.secondPort, Material:this.state.materialType, Date:this.state.asOf, Amount:-this.state.numberOfMaterials, Comment:this.state.optionalComment}, (result)=>{
-            console.log(result);
-          });
-        }
       });
   }
   closeModal(){
@@ -475,16 +412,13 @@ class AddRecord extends Component{
     }
     var data={};
     data[this.state.key]=this.state.text;
-    //var onSuccess=this.props.onSuccess;
-    //console.log(onSuccess);
     this.setState(
       {
         progress:true
       },
-      ajax(this.props.url, data, 
-        (obj)=>{
-          console.log(obj);
-          if(!obj.error){
+      axios.post('/'+this.props.url, data).then(({data})=>{
+          console.log(data);
+          if(!data.error){
            
             if(this.props.onSuccess){
               this.props.onSuccess();
@@ -502,7 +436,7 @@ class AddRecord extends Component{
             }, 1000)});
           }
         }
-      )
+      ).catch(err=>console.log(err))
     );
     
   }
@@ -550,7 +484,7 @@ class App extends Component {
     };
   }
   switchRow(eventKey){
-    event.preventDefault();
+    //eventKey.preventDefault();
     eventKey=parseInt(eventKey, 10);
     switch(eventKey){
       case 1:
@@ -585,24 +519,25 @@ class App extends Component {
     this.getMaterials();
   }
   getPorts(){
-    ajax('getPorts', {}, (results)=>{
-      if(!results||results.error){
+    axios.post('/getPorts', {}).then(({data})=>{
+      console.log(data)
+      if(!data||data.error){
         return;
       }
       this.setState({
-        ports:results
+        ports:data
       });
-    });
+    }).catch(err=>console.log(err));
   }
   getMaterials(){
-    ajax('getMaterials', {}, (results)=>{
-      if(!results||results.error){
+    axios.post('getMaterials', {}).then(({data})=>{
+      if(!data||data.error){
         return;
       }
       this.setState({
-        materials:results
+        materials:data
       });
-    });
+    }).catch(e=>console.log(e));
   }
   render() {
     return (
