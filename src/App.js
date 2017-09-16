@@ -298,7 +298,7 @@ class HoldSubmission extends Component{
         showModal:false
       }, 
       ()=>{
-        const {secondPort, firstPort, secondPort, asOf, numberOfMaterials, optionalComment}=this.state
+        const {secondPort, firstPort, asOf, numberOfMaterials, optionalComment, materialType}=this.state
         //var numT=this.state.secondPort?2:1;
         //var noErrors=true;
         //var numError=0;
