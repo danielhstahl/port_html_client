@@ -298,22 +298,19 @@ class HoldSubmission extends Component{
         showModal:false
       }, 
       ()=>{
-        const {secondPort}=this.state
+        const {secondPort, firstPort, secondPort, asOf, numberOfMaterials, optionalComment}=this.state
         //var numT=this.state.secondPort?2:1;
         //var noErrors=true;
         //var numError=0;
-        Promise.all([
-          axios.post('/writeTransaction', {Port:this.state.firstPort, Material:this.state.materialType, Date:this.state.asOf, Amount:this.state.numberOfMaterials, Comment:this.state.optionalComment}).then(({data})=>{
-            console.log(data);
-          
-            if(data.Failure/*&&noErrors*/){
-              //noErrors=false;
-              alert("Error! "+data.Failure.Message);
-            }
-            this.afterSuccess(true);//no errors
-          }).catch(err=>err),
-          secondPort?axios.post('/writeTransaction', {Port:this.state.secondPort, Material:this.state.materialType, Date:this.state.asOf, Amount:-this.state.numberOfMaterials, Comment:this.state.optionalComment}):Promise.resolve()
-        ]).then(results=>console.log(results))
+        const transactionBody=Object.assign({}, {firstPort:{Port:firstPort, Material:materialType, Date:asOf, Amount:numberOfMaterials, Comment:optionalComment}}, secondPort?{secondPort:{Port:secondPort, Material:materialType, Date:asOf, Amount:-numberOfMaterials, Comment:optionalComment}}:{})
+
+        //Promise.all([
+        axios.post('/writeTransaction', transactionBody).then(({data})=>{
+          this.afterSuccess(true);//no errors
+        }).catch(err=>{
+          alert(err)
+          this.afterSuccess(false)
+        })
         
       });
   }
