@@ -1,118 +1,59 @@
-import React, { Component } from 'react';
-import './App.css';
+import React from 'react'
+import { Layout, Menu } from 'antd'
 import {
-  Nav, NavItem, 
-  Jumbotron, 
-  Row, Col
-} from 'react-bootstrap'
+  HashRouter as Router,
+  Route,
+  Link,
+  Switch,
+  Redirect
+} from 'react-router-dom'
+import Submission from './Submission/SubmissionContainer'
+import Additions from './Additions/AdditionsContainer'
+import Reports from './Reports/ReportsContainer'
+const { Header, Content, Footer } = Layout
+const menuStyle={ lineHeight: '64px' }
+const contentStyle={ padding: '0 50px' }
+const contentDiv={ background: '#fff', padding: 24, minHeight: 280 }
+const footerStyle={ textAlign: 'center' }
+const ENTER_DATA_ROUTE='/enter_data'
+const ADD_OPTIONS_ROUTE='/add_options'
+const RESULTS_ROUTE='/results'
 
-import {DisplayResults} from './Displays'
-import AddRecord from './AddRecord'
-import HoldSubmission from './HoldSubmission'
-import axios from 'axios'
+const AppMenu=({location})=>(
+  <Header>
+      <Menu
+        theme="dark"
+        mode="horizontal"
+        selectedKeys={[location.pathname]}
+        style={menuStyle}
+      >
+        <Menu.Item key={ENTER_DATA_ROUTE}><Link to={ENTER_DATA_ROUTE}>Enter Data</Link></Menu.Item>
+        <Menu.Item key={ADD_OPTIONS_ROUTE}><Link to={ADD_OPTIONS_ROUTE}>Add Options</Link></Menu.Item>
+        <Menu.Item key={RESULTS_ROUTE}><Link to={RESULTS_ROUTE}>Results</Link></Menu.Item>
+      </Menu>
+    </Header>
+)
 
-
-class App extends Component {
-  constructor(props){
-    super(props);
-    this.state={
-      eventOne:true,
-      eventTwo:false,
-      eventThree:false,
-      active:"1",
-      ports:[],
-      materials:[]
-    };
-  }
-  switchRow(eventKey){
-    eventKey=parseInt(eventKey, 10);
-    switch(eventKey){
-      case 1:
-        this.setState({
-          eventOne:true,
-          eventTwo:false,
-          eventThree:false,
-          active:eventKey
-        });
-        break;
-      case 2:
-        this.setState({
-          eventOne:false,
-          eventTwo:true,
-          eventThree:false,
-          active:eventKey
-        });
-        break;
-      case 3:
-        this.setState({
-          eventOne:false,
-          eventTwo:false,
-          eventThree:true,
-          active:eventKey
-        });
-        break;
-      default:
-    }
-  }
-  componentWillMount(){
-    this.getPorts();
-    this.getMaterials();
-  }
-  getPorts(){
-    axios.post('/getPorts', {}).then(({data})=>{
-      if(!data||data.error){
-        return;
-      }
-      this.setState({
-        ports:data
-      });
-    }).catch(err=>console.log(err));
-  }
-  getMaterials(){
-    axios.post('getMaterials', {}).then(({data})=>{
-      if(!data||data.error){
-        return;
-      }
-      this.setState({
-        materials:data
-      });
-    }).catch(e=>console.log(e));
-  }
-  render() {
-    return (
-      <div>
-        <Jumbotron>
-          <div className='container'>
-            <h1>Material Tracker</h1>
-            <p>This app tracks materials between ports</p>
-          </div>
-        </Jumbotron>
-
-
-        <div className='container'>
-          <Nav bsStyle="tabs" activeKey={this.state.active} onSelect={(eventKey)=>{this.switchRow(eventKey);}}>
-            <NavItem eventKey="1" >Enter Data</NavItem>
-            <NavItem eventKey="2" >Add Options</NavItem>
-            <NavItem eventKey="3" >Results</NavItem>
-          </Nav>
-          <div className='smallSpace'></div>
-          {this.state.eventOne?<HoldSubmission ports={this.state.ports} materials={this.state.materials}/>:null}
-          {this.state.eventTwo?<Row>
-            <Col sm={12} md={6}>
-              <AddRecord id='addport' label='Add Port' httpKey='Port' url='writePort' onSuccess={()=>{
-                this.getPorts();
-              }}/>
-              <AddRecord id='addmaterial' label='Add Material Type' url='writeMaterial' httpKey='Material' onSuccess={()=>{
-                this.getMaterials();
-              }}/>
-            </Col>
-          </Row>:null}
-          {this.state.eventThree?<DisplayResults/>:null}
-        </div>
-        <div className='blankSpace'></div>
+const App=()=>(
+<Router>
+  <Layout className="layout">
+    
+    <Route path='/' component={AppMenu} />    
+    <Content style={contentStyle}>
+      <div style={contentDiv}>
+        <Switch>
+          <Redirect exact to={ENTER_DATA_ROUTE} from='/'/>
+          <Route path={ENTER_DATA_ROUTE} component={Submission}/>
+          <Route path={ADD_OPTIONS_ROUTE} component={Additions}/>
+          <Route path={RESULTS_ROUTE} component={Reports}/>
+        </Switch>
       </div>
-    );
-  }
-}
+    </Content>
+    <Footer style={footerStyle}>
+      Port Client
+    </Footer>
+  </Layout>
+</Router>
+)
 
-export default App;
+export default App
