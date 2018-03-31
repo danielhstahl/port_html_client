@@ -31,7 +31,6 @@ export default (state=defaultState, action)=>{
         case TOGGLE_AXIOS_SUCCESS:
             return getToggle(state, 'success', action.id)
         case AXIOS_LOADING:
-            console.log(action)
             return {...state, loading:action.value}
         default:
             return state
