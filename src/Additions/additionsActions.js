@@ -26,7 +26,10 @@ const submitGeneric = (url, type, key, method = 'POST') => dispatch => text => (
     setLoading(true, key)(dispatch)
     setUpdate(type, text)(dispatch)
     fetch(url, { method, body: JSON.stringify({ [key]: text }) })
-        .then(res => res.json()).then(({ data }) => {
+        .then(res => res.json()).then((data) => {
+            if (data.Failure) {
+                throw new Error(data.Failure)
+            }
             showAxiosSuccess(key)(dispatch)
         }).catch(() => {
             showAxiosFailure(key)(dispatch)

@@ -36,7 +36,7 @@ export const toggleModal = dispatch => () => dispatch({
 })
 const generateGet = (url, type) => dispatch => () => {
     fetch(url, { method: 'GET' }).then(res => res.json()).then((data) => {
-        if (!data) {
+        if (!data || data.Failure) {
             return
         }
         dispatch({
@@ -69,7 +69,10 @@ export const submitNewTransaction = dispatch => ({ receivePort, material, materi
             }
         } :
         body
-    fetch('/transaction', { method: 'POST', body: JSON.stringify(fullBody) }).then(() => {
+    fetch('/transaction', { method: 'POST', body: JSON.stringify(fullBody) }).then(res => res.json()).then((data) => {
+        if (data.Failure) {
+            throw new Error(data.Failure)
+        }
         showAxiosSuccess('submission')(dispatch)
     }).catch(err => {
         showAxiosFailure('submission')(dispatch)
