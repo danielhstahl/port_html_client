@@ -4,7 +4,7 @@
   "private": true,
   "proxy": "http://localhost:3000",
   "devDependencies": {
-    "react-scripts": "^4.0.0"
+    "react-scripts": "^5.0.1"
   },
   "dependencies": {
     "antd": "^4.7.2",
